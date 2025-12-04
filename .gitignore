@@ -1,0 +1,35 @@
+# Environment Variables
+.env
+# Mantener .env.example y .env.local en el repo para referencia
+!.env.example
+!.env.local
+
+# Logs
+*.log
+logs/
+/opt/kong/logs/
+/opt/konga/logs/
+
+# Data directories
+/opt/kong/
+/opt/konga/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Backup files
+*.bak
+*.backup

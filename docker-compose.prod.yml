@@ -1,0 +1,160 @@
+# ==============================================================================
+# Docker Compose Override for PRODUCTION Environment
+# ==============================================================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This override provides production-grade configurations:
+# - Strict SSL verification enabled
+# - Optimized resource limits
+# - Production logging levels
+# - Enhanced health checks
+# - Strict restart policies
+# - Security hardening
+
+services:
+  kong:
+    environment:
+      - KONG_LOG_LEVEL=warn
+      - KONG_PG_SSL=on
+      - KONG_PG_SSL_VERIFY=on # Strict SSL verification in PROD
+      - KONG_PLUGINS=bundled,jwt,rate-limiting,cors,request-transformer
+      - KONG_NGINX_WORKER_PROCESSES=4
+      - KONG_NGINX_WORKER_CONNECTIONS=4096
+      - KONG_MEM_CACHE_SIZE=128m
+      - KONG_UPSTREAM_KEEPALIVE_POOL_SIZE=60
+      - KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS=100
+      - KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT=60
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "1"
+          memory: 1G
+    volumes:
+      # Persistir logs
+      - kong-logs:/usr/local/kong/logs
+
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s # Verificar cada 10 segundos (más frecuente)
+      timeout: 5s # Timeout de 5 segundos
+      retries: 10 # 10 reintentos (más tolerante)
+      start_period: 40s # 40 segundos de gracia al iniciar
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/run
+
+  konga:
+    environment:
+      - NODE_ENV=production
+      - KONGA_LOG_LEVEL=warn
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:1337/",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    security_opt:
+      - no-new-privileges:true
+
+  konga-proxy:
+    volumes:
+      - ./config/nginx-konga.conf:/etc/nginx/nginx.conf:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+
+  konga-db:
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "10"
+    security_opt:
+      - no-new-privileges:true
+
+# Production-grade network configuration
+networks:
+  kong-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: kong-net-prod
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+# Optional: CloudWatch logging for production
+# Uncomment and configure if using AWS CloudWatch Logs
+#
+# x-logging: &cloudwatch-logging
+#   driver: awslogs
+#   options:
+#     awslogs-region: ${AWS_REGION:-us-east-1}
+#     awslogs-group: /ecs/api-gateway-prod
+#     awslogs-stream-prefix: kong
+#     awslogs-create-group: "true"

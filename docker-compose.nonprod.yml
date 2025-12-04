@@ -1,0 +1,89 @@
+# ==============================================================================
+# Docker Compose Override para Ambientes NON-PROD (DEV/QA)
+# ==============================================================================
+# Uso: docker-compose -f docker-compose.yml -f docker-compose.nonprod.yml up -d
+#
+# Este override proporciona configuraciones específicas para non-prod:
+# - Conexiones a AWS RDS/MySQL
+# - SSL requerido pero verificación desactivada (certificados autofirmados OK)
+# - Logging incrementado
+# - Health checks habilitados
+# - Políticas de auto-reinicio
+
+services:
+  kong:
+    environment:
+      - KONG_LOG_LEVEL=info
+      - KONG_PG_SSL=on
+      - KONG_PG_SSL_VERIFY=off
+      - KONG_PLUGINS=bundled,jwt,rate-limiting,cors,request-transformer
+      # Agregar plugins personalizados aquí si es necesario
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 30s # Verificar cada 30 segundos
+      timeout: 10s # Timeout de 10 segundos
+      retries: 5 # 5 reintentos antes de marcar como unhealthy
+      start_period: 30s # 30 segundos de gracia al iniciar
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  konga:
+    environment:
+      - NODE_ENV=production
+      - KONGA_LOG_LEVEL=info
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:1337/",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  konga-proxy:
+    volumes:
+      - ./config/nginx-konga.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  konga-db:
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+# Optional: Add CloudWatch logging for non-prod
+# Uncomment and configure if using AWS CloudWatch
+#
+# x-logging: &cloudwatch-logging
+#   driver: awslogs
+#   options:
+#     awslogs-region: ${AWS_REGION:-us-east-1}
+#     awslogs-group: /ecs/api-gateway-nonprod
+#     awslogs-stream-prefix: kong
