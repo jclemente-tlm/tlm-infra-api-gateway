@@ -5,6 +5,9 @@ Este directorio contiene toda la documentación para la infraestructura del API 
 ## Quick Links
 
 - 🚀 **¿Nuevo aquí?** Empieza con la [Guía de Inicio Rápido](./QUICK_START.md)
+- 📖 **¿Usando la API?** Consulta la [API Reference](./API_REFERENCE.md)
+- 🏗️ **¿Por qué esta arquitectura?** Lee las [Decisiones de Arquitectura](./ARCHITECTURE_DECISIONS.md)
+- 🌐 **¿Configurando dominios?** Lee la [Estrategia de Dominios](./DOMAIN_STRATEGY.md)
 - 📐 **¿Entendiendo el proyecto?** Ve la [Estructura del Proyecto](./STRUCTURE.md)
 - 🗄️ **¿Configurando bases de datos?** Lee la [Estrategia de Bases de Datos](./DATABASE_STRATEGY.md)
 - 🔐 **¿Configurando autenticación?** Revisa la [Guía de Integración Keycloak](./KEYCLOAK_KONG_INTEGRATION.md)
@@ -30,7 +33,39 @@ Levanta el API Gateway funcionando en minutos.
 
 ---
 
-### 2. [Estructura del Proyecto](./STRUCTURE.md) 📐
+### 2. [Decisiones de Arquitectura](./ARCHITECTURE_DECISIONS.md) 🏗️
+
+Documentación de decisiones técnicas clave y su justificación.
+
+**Temas cubiertos:**
+
+- **ADR-001**: Patrón de ruteo `/api/{sistema}/{módulo}/{recurso}` - Sustento técnico y comparación con alternativas
+- **ADR-002**: Multi-tenancy por Realm JWT (México/Perú)
+- **ADR-003**: Kong + Keycloak vs alternativas (AWS API Gateway, Apigee, Azure)
+- **ADR-004**: Estrategia de dominios públicos y privados
+- Referencias a patrones de Netflix, Uber, AWS, Stripe, Microsoft
+- Beneficios técnicos validados
+- Consecuencias e implementación
+
+**Cuándo consultar:** Al cuestionar decisiones de arquitectura, incorporar nuevos miembros, planear nuevos sistemas, o documentar el "por qué" de la implementación actual.
+
+---
+
+### 3. [Estructura del Proyecto](./STRUCTURE.md) 📐
+
+Entendiendo la organización del proyecto y disposición de archivos.
+
+**Temas cubiertos:**
+
+- Explicación de la estructura de directorios
+- Propósito de los archivos Docker Compose
+- Ubicación de archivos de configuración
+- Overrides específicos por ambiente
+- Patrones de git ignore
+
+**Cuándo consultar:** Al explorar el código o agregar nuevas configuraciones.
+
+---### 3. [Estructura del Proyecto](./STRUCTURE.md) 📐
 
 Entendiendo la organización del proyecto y disposición de archivos.
 
@@ -46,7 +81,59 @@ Entendiendo la organización del proyecto y disposición de archivos.
 
 ---
 
-### 3. [Estrategia de Bases de Datos](./DATABASE_STRATEGY.md) 🗄️
+### 4. [API Reference](./API_REFERENCE.md) 📖
+
+Referencia completa de todos los endpoints disponibles en el API Gateway.
+
+**Temas cubiertos:**
+
+- Autenticación y obtención de tokens JWT
+- Endpoints de Sisbon (usuarios y bonificaciones)
+- Endpoints de Gestal (almacenes)
+- Códigos de error y manejo de errores
+- Rate limiting y mejores prácticas
+- Ejemplos de integración en múltiples lenguajes
+
+**Cuándo consultar:** Al desarrollar integraciones con el API o documentar casos de uso.
+
+---
+
+### 4. [API Reference](./API_REFERENCE.md) 📖
+
+Referencia completa de todos los endpoints disponibles en el API Gateway.
+
+**Temas cubiertos:**
+
+- Autenticación y obtención de tokens JWT
+- Endpoints de Sisbon (usuarios y bonificaciones)
+- Endpoints de Gestal (almacenes)
+- Códigos de error y manejo de errores
+- Rate limiting y mejores prácticas
+- Ejemplos de integración en múltiples lenguajes
+
+**Cuándo consultar:** Al desarrollar integraciones con el API o documentar casos de uso.
+
+---
+
+### 5. [Estrategia de Dominios](./DOMAIN_STRATEGY.md) 🌐
+
+Convención de nomenclatura de dominios y arquitectura de routing.
+
+**Temas cubiertos:**
+
+- Convenciones de nomenclatura (público vs privado)
+- Lista completa de dominios (9 públicos + 13 privados)
+- Configuración DNS en Route53
+- Arquitectura de observabilidad con Envoy
+- Flujo completo de requests
+- Ejemplos de configuración Kong
+- Guía para añadir nuevos servicios
+
+**Cuándo consultar:** Al configurar nuevos servicios, planear DNS, o entender el routing.
+
+---
+
+### 6. [Estrategia de Bases de Datos](./DATABASE_STRATEGY.md) 🗄️
 
 Estrategia completa de bases de datos por ambiente.
 
@@ -62,7 +149,23 @@ Estrategia completa de bases de datos por ambiente.
 
 ---
 
-### 4. [Estándar de Nomenclatura Keycloak](./KEYCLOAK_NAMING_STANDARD.md) 📝
+### 7. [Estándar de Nomenclatura Keycloak](./KEYCLOAK_NAMING_STANDARD.md) 📝
+
+Estrategia completa de bases de datos por ambiente.
+
+**Temas cubiertos:**
+
+- PostgreSQL local para Kong (solo desarrollo)
+- MySQL para Konga (todos los ambientes)
+- AWS RDS para Kong en non-prod/prod
+- Configuración de conexiones por ambiente
+- Comandos de debugging y troubleshooting
+
+**Cuándo consultar:** Al configurar ambiente local o resolver problemas de conexión a BD.
+
+---
+
+### 7. [Estándar de Nomenclatura Keycloak](./KEYCLOAK_NAMING_STANDARD.md) 📝
 
 Convenciones completas de nomenclatura para clients, realms y roles de Keycloak.
 
@@ -78,7 +181,7 @@ Convenciones completas de nomenclatura para clients, realms y roles de Keycloak.
 
 ---
 
-### 5. [Guía de Integración Keycloak + Kong](./KEYCLOAK_KONG_INTEGRATION.md) 🔐
+### 8. [Guía de Integración Keycloak + Kong](./KEYCLOAK_KONG_INTEGRATION.md) 🔐
 
 Guía paso a paso para configurar autenticación JWT entre Keycloak y Kong.
 
@@ -94,7 +197,7 @@ Guía paso a paso para configurar autenticación JWT entre Keycloak y Kong.
 
 ---
 
-### 6. [Guía de Despliegue](./DEPLOYMENT_GUIDE.md) 🚢
+### 8. [Guía de Despliegue](./DEPLOYMENT_GUIDE.md) 🚢
 
 Guía completa para desplegar y configurar el API Gateway en diferentes ambientes.
 

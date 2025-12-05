@@ -1,6 +1,13 @@
 # tlm-infra-api-gateway
 
-Infraestructura de API Gateway para TLM usando Kong y Keycloak.
+Infraestructura centralizada de API Gateway para Talma usando Kong y Keycloak.
+
+**Propósito:** Punto único de entrada para todos los servicios y aplicaciones de Talma, incluyendo:
+
+- Sistemas de negocio (Sisbon, Gestal, BRS)
+- Integraciones con modelos de IA
+- APIs internas y externas
+- Servicios multi-país (México, Perú)
 
 ## 🚀 Quick Start
 
@@ -48,11 +55,71 @@ Toda la documentación está en el directorio **[docs/](./docs/)**:
 | Documento | Descripción |
 |-----------|-------------|
 | **[docs/README.md](./docs/README.md)** | Índice completo de documentación |
+| **[docs/ARCHITECTURE_DECISIONS.md](./docs/ARCHITECTURE_DECISIONS.md)** | Decisiones técnicas y su justificación |
+| **[docs/DOMAIN_STRATEGY.md](./docs/DOMAIN_STRATEGY.md)** | Estrategia de dominios y nomenclatura |
 | **[docs/KEYCLOAK_NAMING_STANDARD.md](./docs/KEYCLOAK_NAMING_STANDARD.md)** | Estándares de nomenclatura para Keycloak |
 | **[docs/KEYCLOAK_KONG_INTEGRATION.md](./docs/KEYCLOAK_KONG_INTEGRATION.md)** | Guía paso a paso de integración JWT |
 | **[docs/DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)** | Guía de despliegue en ambientes |
 | **[docs/QUICK_START.md](./docs/QUICK_START.md)** | Inicio rápido |
 | **[docs/STRUCTURE.md](./docs/STRUCTURE.md)** | Estructura del proyecto |
+
+## 🎯 Servicios y Endpoints
+
+El API Gateway centraliza el acceso a múltiples sistemas y servicios de Talma:
+
+### Sistemas Actuales
+
+#### Sisbon - Sistema de Bonificaciones (Multi-país: México y Perú)
+
+Sistema integral de bonificaciones para operaciones de carga aérea.
+
+**Módulo: Bonificaciones**
+
+```bash
+# Kilos Ingresados
+POST /api/sisbon/bonificaciones/kilos-ingresados/otro-almacen
+POST /api/sisbon/bonificaciones/kilos-ingresados/siop-impo
+POST /api/sisbon/bonificaciones/kilos-ingresados/siop-expo
+
+# Kilos Facturados
+POST /api/sisbon/bonificaciones/kilos-facturados/siop-impo
+POST /api/sisbon/bonificaciones/kilos-facturados/siop-expo
+```
+
+**Autenticación:** JWT de Keycloak (realms: `tlm-mx`, `tlm-pe`)
+
+**Backend:** `sisbon.internal.talma.com.pe`
+
+#### Gestal - Sistema de Gestión de Tickets (Solo Perú)
+
+Sistema de gestión de tickets y soporte operativo.
+
+**Estado:** Endpoints en definición
+
+```bash
+# Próximamente
+# Los módulos y endpoints se documentarán cuando estén disponibles
+```
+
+**Autenticación:** JWT de Keycloak (realm: `tlm-pe`)
+
+**Backend:** `gestal.internal.talma.com.pe`
+
+### Sistemas en Roadmap
+
+- **BRS**: Sistema de reportes y analytics
+- **Integraciones IA**: Endpoints para modelos de machine learning
+- **Otros servicios internos**: En planificación
+
+### Ambientes
+
+Todos los servicios están disponibles en:
+
+- **PROD:** `https://api.talma.com.pe`
+- **QA:** `https://api-qa.talma.com.pe`
+- **DEV:** `https://api-dev.talma.com.pe`
+
+Ver ejemplos completos en **[docs/DOMAIN_STRATEGY.md](./docs/DOMAIN_STRATEGY.md#ejemplos-de-uso)**
 
 ## 🏗️ Estructura del Proyecto
 

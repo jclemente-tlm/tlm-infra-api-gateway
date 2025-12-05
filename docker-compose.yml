@@ -15,6 +15,30 @@ services:
     networks:
       - kong-net
 
+  kong-deck-bootstrap:
+    image: kong/deck:latest
+    container_name: kong-deck-bootstrap
+    depends_on:
+      - kong-migrations
+      - kong
+    environment:
+      DECK_KONG_ADDR: http://kong:${KONG_ADMIN_PORT:-8001}
+    volumes:
+      - ./config/kong/kong-dev.yaml:/config/kong.yaml:ro
+    command: >
+      sh -c "
+        echo '⏳ Esperando Kong Admin API...';
+        until curl -sf http://kong:${KONG_ADMIN_PORT:-8001}/status > /dev/null 2>&1; do
+          sleep 2;
+        done;
+        echo '✅ Kong listo. Aplicando configuración desde Git...';
+        deck sync --kong-addr http://kong:${KONG_ADMIN_PORT:-8001} --state /config/kong.yaml;
+        echo '🎉 Configuración aplicada exitosamente';
+      "
+    restart: "no"
+    networks:
+      - kong-net
+
   kong:
     image: kong:3.9.1
     user: "root"

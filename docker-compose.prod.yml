@@ -12,6 +12,16 @@
 # - Security hardening
 
 services:
+  kong-deck-bootstrap:
+    volumes:
+      - ./config/kong/kong-prod.yaml:/config/kong.yaml:ro
+    restart: "no"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
   kong:
     environment:
       - KONG_LOG_LEVEL=warn

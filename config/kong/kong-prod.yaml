@@ -1,0 +1,202 @@
+_format_version: "3.0"
+
+# ============================================
+# CONSUMERS (Compartidos por todos los servicios)
+# ============================================
+consumers:
+- username: tlm-mx-realm
+  tags:
+  - jwt
+  - mexico
+  jwt_secrets:
+  - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx"
+    algorithm: RS256
+    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx/protocol/openid-connect/certs"
+
+- username: tlm-pe-realm
+  tags:
+  - jwt
+  - peru
+  jwt_secrets:
+  - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe"
+    algorithm: RS256
+    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe/protocol/openid-connect/certs"
+
+# ============================================
+# SISBON - Sistema de Bonificaciones
+# ============================================
+services:
+- name: sisbon-prod
+  url: http://sisbon.internal.talma.com.pe:8080
+  tags:
+  - sisbon
+  - prod
+  - bonificaciones
+  routes:
+  - name: sisbon-prod-route
+    paths:
+    - /api/sisbon
+    strip_path: false
+    preserve_host: false
+    tags:
+    - sisbon
+    - prod
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+      key_claim_name: iss
+      run_on_preflight: false
+    tags:
+    - auth
+    - sisbon
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - X-Forwarded-Authorization:$(headers.Authorization)
+    tags:
+    - transformer
+    - sisbon
+  - name: rate-limiting
+    config:
+      minute: 1000
+      hour: 10000
+      policy: local
+    tags:
+    - rate-limit
+    - prod
+
+# ============================================
+# GESTAL - Sistema de Gestión de Tickets
+# ============================================
+- name: gestal-pe-prod
+  url: http://gestal-pe.internal.talma.com.pe:8080
+  tags:
+  - gestal
+  - peru
+  - prod
+  - tickets
+  routes:
+  - name: gestal-pe-prod-route
+    paths:
+    - /api/gestal
+    strip_path: false
+    preserve_host: false
+    tags:
+    - gestal
+    - peru
+    - prod
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+      key_claim_name: iss
+      run_on_preflight: false
+    tags:
+    - auth
+    - gestal
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - X-Forwarded-Authorization:$(headers.Authorization)
+    tags:
+    - transformer
+    - gestal
+  - name: rate-limiting
+    config:
+      minute: 1000
+      hour: 10000
+      policy: local
+    tags:
+    - rate-limit
+    - prod
+
+# ============================================
+# TalentHub ATS - Servicio externo de tercero
+# ============================================
+- name: ext-talenthub-ats-prod
+  url: https://api-ats.talenthub.pe
+  tags:
+  - external
+  - talenthub
+  - third-party
+  - prod
+  routes:
+  - name: ext-talenthub-ats-prod-route
+    paths:
+    - /api/gestal/ats
+    strip_path: true
+    preserve_host: false
+    tags:
+    - external
+    - talenthub
+    - prod
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+      key_claim_name: iss
+      run_on_preflight: false
+    tags:
+    - auth
+    - ext-talenthub-ats
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - x-api-key:GRFbBhN2ql6u2QT4M5hQU3bYxr6EMOoP30mWEzpu
+      replace:
+        uri: /ats/lmbExGen?operacion=TALMA_CREAR_POSICION_V1&bcode=68e6d6ae94a907a6ef26e95f
+    tags:
+    - transformer
+    - ext-talenthub-ats
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 1000
+      policy: local
+    tags:
+    - rate-limit
+    - prod
+
+# ============================================
+# BRS - Business Reporting System (Futuro)
+# ============================================
+# Descomentar cuando esté listo
+# - name: brs-prod
+#   url: http://brs.internal.talma.com.pe:8080
+#   tags:
+#   - brs
+#   - prod
+#   - reporting
+#   routes:
+#   - name: brs-prod-route
+#     paths:
+#     - /api/brs
+#     strip_path: false
+#     preserve_host: false
+#     tags:
+#     - brs
+#     - prod
+#   plugins:
+#   - name: jwt
+#     config:
+#       claims_to_verify:
+#       - exp
+#       key_claim_name: iss
+#     tags:
+#     - auth
+#     - brs
+#   - name: rate-limiting
+#     config:
+#       minute: 500
+#       hour: 5000
+#       policy: local
+#     tags:
+#     - rate-limit
+#     - prod

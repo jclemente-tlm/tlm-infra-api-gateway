@@ -1,0 +1,170 @@
+_format_version: "3.0"
+
+# ============================================
+# CONSUMERS (Compartidos por todos los servicios)
+# ============================================
+consumers:
+- username: tlm-mx-realm
+  tags:
+  - jwt
+  - mexico
+  jwt_secrets:
+  - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx"
+    algorithm: RS256
+    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx/protocol/openid-connect/certs"
+
+- username: tlm-pe-realm
+  tags:
+  - jwt
+  - peru
+  jwt_secrets:
+  - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe"
+    algorithm: RS256
+    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe/protocol/openid-connect/certs"
+
+# ============================================
+# SISBON - Sistema de Bonificaciones
+# ============================================
+services:
+- name: sisbon-dev
+  url: http://httpbin.org
+  tags:
+  - sisbon
+  - dev
+  - bonificaciones
+  routes:
+  - name: sisbon-dev-route
+    paths:
+    - /api-dev/sisbon
+    strip_path: false
+    preserve_host: false
+    tags:
+    - sisbon
+    - dev
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+      key_claim_name: iss
+      run_on_preflight: false
+    tags:
+    - auth
+    - sisbon
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - X-Forwarded-Authorization:$(headers.Authorization)
+    tags:
+    - transformer
+    - sisbon
+
+# ============================================
+# GESTAL - Sistema de Gestión de Tickets
+# ============================================
+- name: gestal-pe-dev
+  url: http://httpbin.org
+  tags:
+  - gestal
+  - peru
+  - dev
+  - tickets
+  routes:
+  - name: gestal-pe-dev-route
+    paths:
+    - /api-dev/gestal
+    strip_path: false
+    preserve_host: false
+    tags:
+    - gestal
+    - peru
+    - dev
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+      key_claim_name: iss
+      run_on_preflight: false
+    tags:
+    - auth
+    - gestal
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - X-Forwarded-Authorization:$(headers.Authorization)
+    tags:
+    - transformer
+    - gestal
+
+# ============================================
+# TalentHub ATS - Servicio externo de tercero
+# ============================================
+- name: ext-talenthub-ats-dev
+  url: https://api-ats.talenthub.pe
+  tags:
+  - external
+  - talenthub
+  - third-party
+  - dev
+  routes:
+  - name: ext-talenthub-ats-dev-route
+    paths:
+    - /api-dev/gestal/ats
+    strip_path: true
+    preserve_host: false
+    tags:
+    - external
+    - talenthub
+    - dev
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+      key_claim_name: iss
+      run_on_preflight: false
+    tags:
+    - auth
+    - ext-talenthub-ats
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - x-api-key:GRFbBhN2ql6u2QT4M5hQU3bYxr6EMOoP30mWEzpu
+      replace:
+        uri: /ats/lmbExGen?operacion=TALMA_CREAR_POSICION_V1&bcode=68e6d6ae94a907a6ef26e95f
+    tags:
+    - transformer
+    - ext-talenthub-ats
+
+# ============================================
+# BRS - Business Reporting System (Futuro)
+# ============================================
+# Descomentar cuando esté listo
+# - name: brs-dev
+#   url: http://brs-dev.internal.talma.com.pe:8080
+#   tags:
+#   - brs
+#   - dev
+#   - reporting
+#   routes:
+#   - name: brs-dev-route
+#     paths:
+#     - /api-dev/brs
+#     strip_path: false
+#     preserve_host: false
+#     tags:
+#     - brs
+#     - dev
+#   plugins:
+#   - name: jwt
+#     config:
+#       claims_to_verify:
+#       - exp
+#       key_claim_name: iss
+#     tags:
+#     - auth
+#     - brs

@@ -169,18 +169,19 @@ Futuro (si agregas tipos):
 
 ---
 
-### 5. Integraciones Externas
+### 5. Integraciones Externas (Keycloak Clients)
 
 **Ubicación:** Realm del país
 **Pattern:** `{servicio}-ext-{partner}`
+**Contexto:** Client de Keycloak que consume servicios externos
 
 ```
 
 Realm: tlm-pe
-└─ gestal-ext-ats      → Integración con ATS externo
+└─ gestal-ext-ats      → Client para integración con ATS externo
 
 Realm: tlm-mx
-└─ sisbon-ext-reniec   → Integración con RENIEC
+└─ sisbon-ext-reniec   → Client para integración con RENIEC
 
 ```
 
@@ -189,6 +190,79 @@ Realm: tlm-mx
 - Access Type: `confidential`
 - Service Accounts Enabled: `Yes`
 - Standard Flow: `OFF`
+
+---
+
+### 6. Servicios Externos de Terceros (Kong Services)
+
+**Ubicación:** Kong configuration (no son clients de Keycloak)
+**Pattern:** `ext-{partner}-{servicio}-{ambiente}`
+**Contexto:** Servicios de terceros que Kong expone como proxy
+
+```
+Ejemplos Kong:
+├─ ext-talenthub-ats-dev       → TalentHub ATS (externo) en DEV
+├─ ext-talenthub-ats-prod      → TalentHub ATS (externo) en PROD
+├─ ext-reniec-validation-prod  → RENIEC validación (externo)
+├─ ext-sunat-facturacion-prod  → SUNAT facturación (externo)
+└─ ext-stripe-payments-prod    → Stripe pagos (externo)
+```
+
+**Configuración Kong:**
+
+```yaml
+services:
+- name: ext-talenthub-ats-dev
+  url: https://api-ats.talenthub.pe
+  tags:
+  - external
+  - talenthub
+  - third-party
+  - dev
+  routes:
+  - name: ext-talenthub-ats-dev-route
+    paths:
+    - /api-dev/gestal/ats
+  plugins:
+  - name: jwt              # Valida JWT de clientes internos
+  - name: request-transformer  # Inyecta x-api-key del partner
+    config:
+      add:
+        headers:
+        - x-api-key:PARTNER_API_KEY
+```
+
+**Diferencia clave:**
+
+| Tipo | Ubicación | Pattern | Propósito |
+|------|-----------|---------|------------|
+| Client Keycloak | Keycloak realm | `{servicio}-ext-{partner}` | Identidad que **consume** servicio externo |
+| Service Kong | Kong config | `ext-{partner}-{servicio}-{env}` | Servicio externo que Kong **expone/protege** |
+
+**Ejemplo completo:**
+
+```
+Keycloak (tlm-pe):
+└─ gestal-ext-ats      → Client que autentica contra ATS
+
+Kong:
+└─ ext-talenthub-ats-dev → Proxy a TalentHub ATS con JWT + x-api-key
+
+Flujo:
+1. App Gestal obtiene token con client "gestal-pe-dev"
+2. Llama a Kong: POST /api-dev/gestal/ats
+3. Kong valida JWT
+4. Kong inyecta x-api-key de TalentHub
+5. Kong hace proxy a https://api-ats.talenthub.pe
+```
+
+**Fundamento (Industry Standards):**
+
+- ✅ **CNCF Cloud-Native Patterns**: Prefijo `ext-` marca trust boundaries
+- ✅ **AWS/GCP/Azure**: Usan patrones similares para recursos externos
+- ✅ **Kong Best Practices**: Tags semánticos (`external`, `third-party`)
+- ✅ **Security Compliance** (SOC2/ISO27001): Separación clara de integraciones externas
+- ✅ **Microservices Architecture**: Bounded contexts explícitos
 
 ---
 
@@ -393,23 +467,38 @@ Crear nuevos:
 - [ ] Crear `{servicio}-dev`
 - [ ] Crear `{servicio}-qa`
 - [ ] Crear `{servicio}-prod`
-- [ ] Si hay integraciones externas: `{servicio}-ext-{partner}`
+- [ ] Si hay integraciones externas:
+  - [ ] Client Keycloak: `{servicio}-ext-{partner}`
+  - [ ] Service Kong: `ext-{partner}-{servicio}-{env}`
 - [ ] Configurar roles
 - [ ] Configurar Kong
 - [ ] Documentar endpoints
+
+### Servicio Externo de Tercero (Proxy en Kong)
+
+- [ ] Crear service en Kong: `ext-{partner}-{servicio}-{env}`
+- [ ] Configurar URL del partner
+- [ ] Agregar tags: `["external", "{partner}", "third-party", "{env}"]`
+- [ ] Configurar JWT plugin (valida clientes internos)
+- [ ] Configurar request-transformer (x-api-key del partner)
+- [ ] Configurar rate limiting (protección)
+- [ ] Documentar credenciales del partner
+- [ ] Definir rutas públicas en Kong
+- [ ] Probar integración end-to-end
 
 ---
 
 ## Resumen Rápido
 
 | Tipo | Ubicación | Pattern | Ejemplo |
-|------|-----------|---------|---------|
-| API Corporativa | tlm-corp | `{servicio}-api` | `sisbon-api` |
-| Consumidor Corp | tlm-{pais} | `{servicio}-{pais}-{env}` | `sisbon-mx-dev` |
-| API Local | tlm-{pais} | `{servicio}-api` | `gestal-api` |
-| Consumidor Local | tlm-{pais} | `{servicio}-{pais}-{env}` | `gestal-pe-dev` |
-| Consumidor Local (multi-tipo) | tlm-{pais} | `{servicio}-{tipo}-{pais}-{env}` | `gestal-mobile-pe-dev` |
-| Externo | tlm-{pais} | `{servicio}-ext-{partner}` | `gestal-ext-ats` |
+|------|-----------|---------|---------|-------
+| API Corporativa | tlm-corp (Keycloak) | `{servicio}-api` | `sisbon-api` |
+| Consumidor Corp | tlm-{pais} (Keycloak) | `{servicio}-{pais}-{env}` | `sisbon-mx-dev` |
+| API Local | tlm-{pais} (Keycloak) | `{servicio}-api` | `gestal-api` |
+| Consumidor Local | tlm-{pais} (Keycloak) | `{servicio}-{pais}-{env}` | `gestal-pe-dev` |
+| Consumidor Local (multi-tipo) | tlm-{pais} (Keycloak) | `{servicio}-{tipo}-{pais}-{env}` | `gestal-mobile-pe-dev` |
+| Client Integración Externa | tlm-{pais} (Keycloak) | `{servicio}-ext-{partner}` | `gestal-ext-ats` |
+| Servicio Externo Terceros | Kong | `ext-{partner}-{servicio}-{env}` | `ext-talenthub-ats-dev` |
 
 ---
 
@@ -537,7 +626,10 @@ Para la guía detallada de configuración paso a paso en Keycloak y Kong, consul
 
 ---
 
-**Fecha de última actualización:** 2025-12-04
-**Versión:** 1.0
+**Fecha de última actualización:** 2025-12-05
+**Versión:** 1.1
 **Mantenido por:** Equipo DevOps TLM
 
+**Changelog:**
+- v1.1 (2025-12-05): Agregada sección 6 para servicios externos de terceros en Kong
+- v1.0 (2025-12-04): Versión inicial
