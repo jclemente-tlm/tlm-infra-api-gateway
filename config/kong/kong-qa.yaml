@@ -27,7 +27,7 @@ consumers:
 # ============================================
 services:
 - name: sisbon-qa
-  url: http://sisbon-qa.internal.talma.com.pe:8080
+  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-qa/sisbon
   tags:
   - sisbon
   - qa
@@ -64,7 +64,7 @@ services:
 # GESTAL - Sistema de Gestión de Tickets
 # ============================================
 - name: gestal-pe-qa
-  url: http://gestal-pe-qa.internal.talma.com.pe:8080
+  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-qa/gestal
   tags:
   - gestal
   - peru

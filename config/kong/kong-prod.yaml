@@ -27,7 +27,7 @@ consumers:
 # ============================================
 services:
 - name: sisbon-prod
-  url: http://sisbon.internal.talma.com.pe:8080
+  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api/sisbon
   tags:
   - sisbon
   - prod
@@ -71,8 +71,11 @@ services:
 # ============================================
 # GESTAL - Sistema de Gestión de Tickets
 # ============================================
+# GESTAL - Sistema de Gestión de Tickets
+# ============================================
+# PROD Environment
 - name: gestal-pe-prod
-  url: http://gestal-pe.internal.talma.com.pe:8080
+  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api/gestal
   tags:
   - gestal
   - peru
