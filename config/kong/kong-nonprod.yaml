@@ -2,6 +2,9 @@ _format_version: "3.0"
 
 # ============================================
 # CONSUMERS (Compartidos por todos los servicios)
+# Kong JWT OSS obtiene claves JWKS automáticamente desde:
+# {key}/.well-known/openid-configuration
+# NO se usa jwks_uri en decK YAML (no soportado)
 # ============================================
 consumers:
 - username: tlm-mx-realm
@@ -11,7 +14,6 @@ consumers:
   jwt_secrets:
   - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx"
     algorithm: RS256
-    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx/protocol/openid-connect/certs"
 
 - username: tlm-pe-realm
   tags:
@@ -20,7 +22,6 @@ consumers:
   jwt_secrets:
   - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe"
     algorithm: RS256
-    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe/protocol/openid-connect/certs"
 
 # ============================================
 # SISBON - Sistema de Bonificaciones
