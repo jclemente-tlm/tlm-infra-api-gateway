@@ -134,6 +134,9 @@ services:
       add:
         headers:
         - x-api-key:GRFbBhN2ql6u2QT4M5hQU3bYxr6EMOoP30mWEzpu
+      remove:
+        headers:
+        - Authorization
       replace:
         uri: /ats/lmbExGen?operacion=TALMA_CREAR_POSICION_V1&bcode=68e6d6ae94a907a6ef26e95f
     tags:
