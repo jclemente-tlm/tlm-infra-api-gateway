@@ -25,16 +25,8 @@ services:
       DECK_KONG_ADDR: http://kong:${KONG_ADMIN_PORT:-8001}
     volumes:
       - ./config/kong/kong-dev.yaml:/config/kong.yaml:ro
-    command: >
-      sh -c "
-        echo '⏳ Esperando Kong Admin API...';
-        until curl -sf http://kong:${KONG_ADMIN_PORT:-8001}/status > /dev/null 2>&1; do
-          sleep 2;
-        done;
-        echo '✅ Kong listo. Aplicando configuración desde Git...';
-        deck sync --kong-addr http://kong:${KONG_ADMIN_PORT:-8001} --state /config/kong.yaml;
-        echo '🎉 Configuración aplicada exitosamente';
-      "
+      - ./scripts/wait-for-kong.sh:/wait-for-kong.sh:ro
+    entrypoint: ["/bin/sh", "/wait-for-kong.sh"]
     restart: "no"
     networks:
       - kong-net
