@@ -47,7 +47,7 @@ consumers:
 # ============================================
 services:
 - name: sisbon-prod
-  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api/sisbon
+  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080
   tags:
   - sisbon
   - prod
@@ -79,56 +79,6 @@ services:
     tags:
     - transformer
     - sisbon
-  - name: rate-limiting
-    config:
-      minute: 1000
-      hour: 10000
-      policy: local
-    tags:
-    - rate-limit
-    - prod
-
-# ============================================
-# GESTAL - Sistema de Gestión de Tickets
-# ============================================
-# GESTAL - Sistema de Gestión de Tickets
-# ============================================
-# PROD Environment
-- name: gestal-pe-prod
-  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api/gestal
-  tags:
-  - gestal
-  - peru
-  - prod
-  - tickets
-  routes:
-  - name: gestal-pe-prod-route
-    paths:
-    - /api/gestal
-    strip_path: false
-    preserve_host: false
-    tags:
-    - gestal
-    - peru
-    - prod
-  plugins:
-  - name: jwt
-    config:
-      claims_to_verify:
-      - exp
-      key_claim_name: iss
-      run_on_preflight: false
-    tags:
-    - auth
-    - gestal
-  - name: request-transformer
-    config:
-      add:
-        headers:
-        - X-Forwarded-Authorization:$(headers.Authorization)
-    tags:
-    - transformer
-    - gestal
   - name: rate-limiting
     config:
       minute: 1000

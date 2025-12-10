@@ -48,7 +48,7 @@ consumers:
 services:
 # DEV Environment
 - name: sisbon-dev
-  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-dev/sisbon
+  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080
   tags:
   - sisbon
   - dev
@@ -83,7 +83,7 @@ services:
 
 # QA Environment
 - name: sisbon-qa
-  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-qa/sisbon
+  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080
   tags:
   - sisbon
   - qa
@@ -115,46 +115,6 @@ services:
     tags:
     - transformer
     - sisbon
-
-# ============================================
-# GESTAL - Sistema de Gestión de Tickets
-# ============================================
-# DEV Environment
-- name: gestal-pe-dev
-  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-dev/gestal
-  tags:
-  - gestal
-  - peru
-  - dev
-  - tickets
-  routes:
-  - name: gestal-pe-dev-route
-    paths:
-    - /api-dev/gestal
-    strip_path: false
-    preserve_host: false
-    tags:
-    - gestal
-    - peru
-    - dev
-  plugins:
-  - name: jwt
-    config:
-      claims_to_verify:
-      - exp
-      key_claim_name: iss
-      run_on_preflight: false
-    tags:
-    - auth
-    - gestal
-  - name: request-transformer
-    config:
-      add:
-        headers:
-        - X-Forwarded-Authorization:$(headers.Authorization)
-    tags:
-    - transformer
-    - gestal
 
 # ============================================
 # TalentHub ATS - Servicio externo de tercero
@@ -202,44 +162,6 @@ services:
     - gestal-ats
 
 # QA Environment (ATS)
-- name: gestal-pe-qa
-  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-qa/gestal
-  tags:
-  - gestal
-  - peru
-  - qa
-  - tickets
-  routes:
-  - name: gestal-pe-qa-route
-    paths:
-    - /api-qa/gestal
-    strip_path: false
-    preserve_host: false
-    tags:
-    - gestal
-    - peru
-    - qa
-  plugins:
-  - name: jwt
-    config:
-      claims_to_verify:
-      - exp
-      key_claim_name: iss
-      run_on_preflight: false
-    tags:
-    - auth
-    - gestal
-  - name: request-transformer
-    config:
-      add:
-        headers:
-        - X-Forwarded-Authorization:$(headers.Authorization)
-    tags:
-    - transformer
-    - gestal
-
-# QA Environment (ATS)
-    - gestal
 
 - name: ext-talenthub-ats-qa
   url: https://api-ats.talenthub.pe
