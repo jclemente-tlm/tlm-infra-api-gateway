@@ -11,6 +11,16 @@
 # - Políticas de auto-reinicio
 
 services:
+  kong-migrations:
+    environment:
+      - KONG_PG_SSL=on
+      - KONG_PG_SSL_VERIFY=off
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
   kong-deck-bootstrap:
     volumes:
       - ./config/kong/kong-nonprod.yaml:/config/kong.yaml:ro
