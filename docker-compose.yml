@@ -10,7 +10,7 @@ services:
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_SSL: ${KONG_PG_SSL:-on}
       KONG_PG_SSL_VERIFY: ${KONG_PG_SSL_VERIFY:-off}
-    command: kong migrations bootstrap
+    command: kong migrations up
     restart: "no"
     networks:
       - kong-net
