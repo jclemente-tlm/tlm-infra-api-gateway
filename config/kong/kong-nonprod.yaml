@@ -180,7 +180,7 @@ services:
 
 # QA Environment
 - name: gestal-pe-qa
-  url: http://gestal-pe-qa.internal.talma.com.pe:8080
+  url: http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/api-qa/gestal
   tags:
   - gestal
   - peru
