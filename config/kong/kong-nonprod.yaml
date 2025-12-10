@@ -279,9 +279,6 @@ services:
     - transformer
     - ext-talenthub-ats
 
-# QA Environment
-- name: sisbon-qa
-
 # ============================================
 # BRS - Business Reporting System (Futuro)
 # ============================================
