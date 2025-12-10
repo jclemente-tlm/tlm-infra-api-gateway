@@ -11,7 +11,16 @@ consumers:
   jwt_secrets:
   - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx"
     algorithm: RS256
-    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-mx/protocol/openid-connect/certs"
+    rsa_public_key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAomqinvUbq03LpYx8r4Ch
+      swuDRO5Vo9+tBQzVXduevffBDoxoKU8Rt4BW3AJMTNiPcKA4z+H2OpDn5LGFQDYG
+      IHRAnuRqDUbLQNRa5aMTplc2ilH1lp30pr35E1YuZaEqI8s9wIUCLlU5HAbO34CO
+      MQPD6v0EKH1AqPluoWzgV9hVW9MBk5pgjCpwSnAIUMdaUlQdT3BkvRyLrNYnGn0N
+      EmVTiJXAgT044JfSajp2OA4HCUIyIIXtCmvmFbdGMDaOhUYOG1EyhWizZKCY6XMv
+      Ku+9MS4YE90rN0t/MOBm3uhAx8JSpa52OEHa781SyF1cII1BrX9DsHFbgz/ZGsG1
+      VQIDAQAB
+      -----END PUBLIC KEY-----
 
 - username: tlm-pe-realm
   tags:
@@ -20,7 +29,16 @@ consumers:
   jwt_secrets:
   - key: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe"
     algorithm: RS256
-    jwks_uri: "http://alb-monitoreo-2113613529.us-east-1.elb.amazonaws.com/auth/realms/tlm-pe/protocol/openid-connect/certs"
+    rsa_public_key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAniRIj3fRG/6yJKdL5wQG
+      ZzgO0tckuokA14iiHiIcOIMEp0YwvwH4bDWG9NZh6GboPJ9adxsTtKjZXViI/e/L
+      mWaTGn2V0ImJO3ffPK6NEwRMRHqUWR/fYQ+PERcLC+sY1zyYzI3JvJAH5jGGJ3Tz
+      asFpraLqtVDJ7nSwBZlCX3uXRVlKirzfdvliUkq9myc0EKMozGB9iT1vsY6AH2f0
+      OqS1BhQVlBtZOm0lkz9RJDPEdh0eQ4jKJI2EoGEoKXU4FkgjhhDYADumDmfkPsTe
+      ahmN515T0MNbPjIEwhH2Z1EIaitcDWT06HXK9oyJjRt//sO86AhTZrmrt/onxI/u
+      SQIDAQAB
+      -----END PUBLIC KEY-----
 
 # ============================================
 # SISBON - Sistema de Bonificaciones
