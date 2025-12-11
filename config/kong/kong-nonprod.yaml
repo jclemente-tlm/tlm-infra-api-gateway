@@ -48,7 +48,7 @@ consumers:
 services:
 # DEV Environment
 - name: sisbon-dev
-  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080
+  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080/api
   tags:
   - sisbon
   - dev
@@ -57,7 +57,7 @@ services:
   - name: sisbon-dev-route
     paths:
     - /api-dev/sisbon
-    strip_path: false
+    strip_path: true
     preserve_host: false
     tags:
     - sisbon
@@ -83,7 +83,7 @@ services:
 
 # QA Environment
 - name: sisbon-qa
-  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080
+  url: http://nlb-services-ecs-9bcb22f499472763.elb.us-east-1.amazonaws.com:8080/api
   tags:
   - sisbon
   - qa
@@ -92,7 +92,7 @@ services:
   - name: sisbon-qa-route
     paths:
     - /api-qa/sisbon
-    strip_path: false
+    strip_path: true
     preserve_host: false
     tags:
     - sisbon
